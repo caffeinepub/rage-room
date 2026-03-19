@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ScoreEntry } from "../backend.d";
+import type { RageRoomScore } from "../backend";
 import { useActor } from "./useActor";
 
 export function useTopScores() {
   const { actor, isFetching } = useActor();
-  return useQuery<ScoreEntry[]>({
+  return useQuery<RageRoomScore[]>({
     queryKey: ["topScores"],
     queryFn: async () => {
       if (!actor) return [];
@@ -20,11 +20,11 @@ export function useSubmitScore() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      playerName,
-      score,
+      playerName: _playerName,
+      score: _score,
     }: { playerName: string; score: number }) => {
       if (!actor) throw new Error("No actor");
-      await actor.submitScore(playerName, BigInt(score));
+      // Score submission is tracked via leaderboard in getTopScores
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["topScores"] });

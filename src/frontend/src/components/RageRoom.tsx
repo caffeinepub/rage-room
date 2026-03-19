@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudio } from "../hooks/useAudio";
 import { useSubmitScore, useTopScores } from "../hooks/useQueries";
+import RagePassModal from "./RagePassModal";
 
 // ─── Types & Constants ────────────────────────────────────────────────────────
 
@@ -37,7 +38,8 @@ const SHARD_COLORS = [
   "oklch(0.55 0.25 15)",
 ];
 
-const GAME_DURATION = 30;
+const GAME_DURATION_BASE = 30;
+const GAME_DURATION_PREMIUM = 45;
 const SMASH_IT_ALL_INTERVAL = 15;
 const HYPE_LINES = [
   "READY FOR MORE HEAT? 🔥",
@@ -57,6 +59,15 @@ const HYPE_LINES = [
   "YOUR RAGE GROWS STRONGER! 👿",
   "NOTHING CAN STOP YOU NOW! ⚡",
   "MAXIMUM DESTRUCTION MODE! 🔥",
+];
+const PREMIUM_HYPE_LINES = [
+  "UNSTOPPABLE! 👑",
+  "LEGENDARY RAGE! 🔥",
+  "PURE FURY! ⚡",
+  "GODLIKE RAGE! 💀",
+  "ABSOLUTE DESTRUCTION! 👑",
+  "PREMIUM RAGE UNLEASHED! 🔱",
+  "YOU ARE THE STORM! ⚡",
 ];
 const RAGE_EMOJIS = [
   "😤",
@@ -197,10 +208,12 @@ export default function RageRoom({
   const [showCombo, setShowCombo] = useState(false);
   const [isRaging, setIsRaging] = useState(false);
   const [playerName, setPlayerName] = useState(initialPlayerName);
+  const isPremium = false;
+  const [ragePassOpen, setRagePassOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [gameState, setGameState] = useState<GameState>("idle");
-  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION_BASE);
   const [level, setLevel] = useState(1);
   const [levelUpCountdown, setLevelUpCountdown] = useState(3);
   const [hypeLineIndex, setHypeLineIndex] = useState(0);
@@ -283,7 +296,13 @@ export default function RageRoom({
   useEffect(() => {
     if (gameState !== "levelup") return;
     setLevelUpCountdown(3);
-    setHypeLineIndex(Math.floor(Math.random() * HYPE_LINES.length));
+    if (isPremium && Math.random() > 0.5) {
+      setHypeLineIndex(
+        -(Math.floor(Math.random() * PREMIUM_HYPE_LINES.length) + 1),
+      );
+    } else {
+      setHypeLineIndex(Math.floor(Math.random() * HYPE_LINES.length));
+    }
     const countInterval = setInterval(() => {
       setLevelUpCountdown((c) => {
         if (c <= 1) {
@@ -296,7 +315,7 @@ export default function RageRoom({
     // After 3.2s, advance to next level
     const advanceTimer = setTimeout(() => {
       setLevel((prev) => prev + 1);
-      setTimeLeft(GAME_DURATION);
+      setTimeLeft(isPremium ? GAME_DURATION_PREMIUM : GAME_DURATION_BASE);
       setSlots(initSlots());
       setSmashItAllVisible(false);
       setSmashItAllTimer(SMASH_IT_ALL_INTERVAL);
@@ -363,7 +382,7 @@ export default function RageRoom({
     setShowCombo(false);
     setSubmitted(false);
     setSlots(initSlots());
-    setTimeLeft(GAME_DURATION);
+    setTimeLeft(isPremium ? GAME_DURATION_PREMIUM : GAME_DURATION_BASE);
     setLevel(1);
     setSmashItAllVisible(false);
     setSmashItAllTimer(SMASH_IT_ALL_INTERVAL);
@@ -769,6 +788,25 @@ export default function RageRoom({
                 Score
               </div>
             </div>
+
+            {/* Premium crown badge */}
+            {isPremium && (
+              <div
+                className="flex items-center gap-1 px-2 py-1 rounded-lg"
+                style={{
+                  background: "oklch(0.75 0.15 85 / 0.15)",
+                  border: "1px solid oklch(0.75 0.15 85 / 0.5)",
+                  boxShadow: "0 0 12px oklch(0.75 0.15 85 / 0.3)",
+                  fontSize: "0.85rem",
+                  color: "oklch(0.80 0.18 85)",
+                  letterSpacing: "0.05em",
+                  fontWeight: 700,
+                }}
+              >
+                <span style={{ fontSize: "1rem" }}>👑</span>
+                <span className="hidden sm:inline text-xs">RAGE PASS</span>
+              </div>
+            )}
 
             {/* Level badge */}
             {isActiveGame && (
@@ -1558,7 +1596,9 @@ export default function RageRoom({
                       lineHeight: 1.2,
                     }}
                   >
-                    {HYPE_LINES[hypeLineIndex]}
+                    {hypeLineIndex < 0
+                      ? PREMIUM_HYPE_LINES[-(hypeLineIndex + 1)]
+                      : HYPE_LINES[hypeLineIndex]}
                   </motion.div>
                   <div className="text-center">
                     <div
@@ -1618,6 +1658,26 @@ export default function RageRoom({
                       ? `Next level in ${levelUpCountdown}...`
                       : "GET READY!"}
                   </motion.div>
+
+                  {!isPremium && (
+                    <button
+                      type="button"
+                      data-ocid="game.secondary_button"
+                      onClick={() => setRagePassOpen(true)}
+                      style={{
+                        color: "oklch(0.75 0.16 85)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "3px",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        letterSpacing: "0.03em",
+                      }}
+                    >
+                      👑 Get 15 more seconds with Rage Pass
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1819,6 +1879,28 @@ export default function RageRoom({
                     PLAY AGAIN
                   </button>
 
+                  {/* Rage Pass upsell */}
+                  {!isPremium && (
+                    <button
+                      type="button"
+                      data-ocid="game.open_modal_button"
+                      onClick={() => setRagePassOpen(true)}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-full font-display tracking-wider uppercase transition-all duration-200 active:scale-95 hover:scale-105"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, oklch(0.72 0.16 85), oklch(0.62 0.18 75))",
+                        color: "oklch(0.12 0.01 80)",
+                        boxShadow:
+                          "0 0 20px oklch(0.72 0.16 85 / 0.5), 0 0 40px oklch(0.72 0.16 85 / 0.2)",
+                        fontSize: "0.95rem",
+                        letterSpacing: "0.08em",
+                        fontWeight: 800,
+                      }}
+                    >
+                      ✨ Upgrade to Rage Pass — $2.99
+                    </button>
+                  )}
+
                   <p
                     className="text-xs tracking-wide"
                     style={{ color: "oklch(0.45 0.01 250)" }}
@@ -1861,6 +1943,13 @@ export default function RageRoom({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Rage Pass Modal */}
+      <RagePassModal
+        open={ragePassOpen}
+        onClose={() => setRagePassOpen(false)}
+        playerName={playerName}
+      />
 
       {/* Footer */}
       <footer
