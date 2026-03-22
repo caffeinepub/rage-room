@@ -10,16 +10,85 @@
     <meta name="description" content="Smash things and release your stress in the ultimate virtual rage room!" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="preload" href="/assets/generated/rage-room-logo-transparent.dim_256x256.png" as="image" />
     <title>Rage Room</title>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3647773420341468" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3647773420341468" crossorigin="anonymous"></script>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        height: 100%;
+        background: radial-gradient(ellipse 80% 60% at 50% 40%, #2a0a04 0%, #050d18 70%);
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+      }
+      #root { height: 100%; }
+      #splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        background: radial-gradient(ellipse 80% 60% at 50% 40%, #2a0a04 0%, #050d18 70%);
+        z-index: 9999;
+        transition: opacity 0.4s ease;
+      }
+      #splash.hidden { opacity: 0; pointer-events: none; }
+      #splash-title {
+        font-size: clamp(3rem, 12vw, 7rem);
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        color: #f5e8d8;
+        text-shadow: 0 0 40px rgba(220,80,20,0.7), 0 0 80px rgba(200,50,10,0.4);
+        line-height: 1;
+      }
+      #splash-sub {
+        font-size: clamp(1.2rem, 4vw, 2rem);
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        color: #e05020;
+        text-shadow: 0 0 20px rgba(220,80,20,0.6);
+      }
+      .splash-spinner {
+        width: 44px;
+        height: 44px;
+        border: 3px solid rgba(220,80,20,0.2);
+        border-top-color: #e05020;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
     <script type="module" crossorigin src="/assets/index-CVhitFce.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BnFTjkyV.css">
   </head>
   <body>
+    <div id="splash">
+      <div id="splash-title">RAGE ROOM</div>
+      <div id="splash-sub">LOADING...</div>
+      <div class="splash-spinner"></div>
+    </div>
     <div id="root"></div>
     <script>
+      // Hide splash once React mounts
+      (function() {
+        var root = document.getElementById('root');
+        var splash = document.getElementById('splash');
+        if (!root || !splash) return;
+        var observer = new MutationObserver(function() {
+          if (root.childElementCount > 0) {
+            splash.classList.add('hidden');
+            setTimeout(function() { splash.remove(); }, 500);
+            observer.disconnect();
+          }
+        });
+        observer.observe(root, { childList: true });
+      })();
+
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
+        window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw.js');
         });
       }
