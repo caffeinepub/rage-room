@@ -3,9 +3,15 @@ import { useAudio } from "../hooks/useAudio";
 
 interface WelcomePageProps {
   onEnter: () => void;
+  onAbout: () => void;
+  onDownloadAds: () => void;
 }
 
-export default function WelcomePage({ onEnter }: WelcomePageProps) {
+export default function WelcomePage({
+  onEnter,
+  onAbout,
+  onDownloadAds,
+}: WelcomePageProps) {
   const { playEnter } = useAudio();
 
   function handleEnter() {
@@ -201,6 +207,32 @@ export default function WelcomePage({ onEnter }: WelcomePageProps) {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.5 }}
       >
+        <button
+          type="button"
+          onClick={onAbout}
+          style={{
+            color: "oklch(0.55 0.1 32)",
+            marginRight: "12px",
+            padding: "8px 12px",
+          }}
+          className="underline"
+          data-ocid="welcome.about_link"
+        >
+          About
+        </button>
+        <button
+          type="button"
+          onClick={onDownloadAds}
+          style={{
+            color: "oklch(0.55 0.1 32)",
+            marginRight: "12px",
+            padding: "8px 12px",
+          }}
+          className="underline"
+          data-ocid="welcome.download_ads_link"
+        >
+          Download Ads
+        </button>
         © {new Date().getFullYear()} DEEPANSHU DHINGRA. Built with ♥ using{" "}
         <a
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}

@@ -13,6 +13,38 @@ import { useAudio } from "../hooks/useAudio";
 import { useSubmitScore, useTopScores } from "../hooks/useQueries";
 import RagePassModal from "./RagePassModal";
 
+declare global {
+  interface Window {
+    adsbygoogle: unknown[];
+  }
+}
+
+function AdBanner() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    try {
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
+    } catch (_e) {
+      // ignore
+    }
+  }, []);
+  return (
+    <div
+      ref={ref}
+      style={{ width: "100%", minHeight: 100, marginTop: 12, marginBottom: 4 }}
+    >
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client="ca-pub-3647773420341468"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  );
+}
+
 // ─── Types & Constants ────────────────────────────────────────────────────────
 
 const OBJECT_TYPES = [
@@ -197,7 +229,8 @@ function stressLabel(stress: number) {
 
 export default function RageRoom({
   playerName: initialPlayerName = "",
-}: { playerName?: string }) {
+  onAbout,
+}: { playerName?: string; onAbout?: () => void }) {
   const [slots, setSlots] = useState<ObjectSlot[]>(initSlots);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [scoreTicks, setScoreTicks] = useState<ScoreTick[]>([]);
@@ -1679,6 +1712,7 @@ export default function RageRoom({
                     </button>
                   )}
                 </div>
+                <AdBanner />
               </motion.div>
             )}
 
@@ -1960,6 +1994,19 @@ export default function RageRoom({
         }}
       >
         <span>
+          {onAbout && (
+            <button
+              type="button"
+              onClick={onAbout}
+              style={{
+                color: "oklch(0.55 0.01 250)",
+                textDecoration: "underline",
+                marginRight: "12px",
+              }}
+            >
+              About
+            </button>
+          )}
           © {new Date().getFullYear()} DEEPANSHU DHINGRA. Built with{" "}
           <span style={{ color: "oklch(0.60 0.23 22)" }}>♥</span> using{" "}
           <a
