@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, ExternalLink } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 
 const ads = [
   {
@@ -31,43 +31,34 @@ function AdCard({ ad, index }: { ad: (typeof ads)[0]; index: number }) {
       className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800"
       data-ocid={`download_ads.item.${index + 1}`}
     >
+      {/* The image itself - long-press on iPhone to save */}
       <img
         src={ad.path}
         alt={ad.label}
-        className="w-full object-cover"
+        className="w-full object-cover select-none"
         loading="lazy"
+        style={{ WebkitTouchCallout: "default" } as React.CSSProperties}
       />
       <div className="p-4">
         <p className="font-bold text-lg">{ad.label}</p>
-        <p className="text-gray-400 text-sm mb-4">{ad.desc}</p>
+        <p className="text-gray-400 text-sm mb-3">{ad.desc}</p>
 
-        {/* Primary: open in new tab so user can save from browser */}
-        <a
-          href={ad.path}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors mb-2"
-          data-ocid={`download_ads.open_button.${index + 1}`}
-        >
-          <ExternalLink size={18} />
-          Open Image
-        </a>
+        {/* iPhone instructions */}
+        <div className="bg-yellow-900/40 border border-yellow-700/50 rounded-xl p-3 mb-3 text-sm text-yellow-200">
+          <span className="font-bold">iPhone:</span> Hold the image above and
+          tap <em>"Save to Photos"</em>
+        </div>
 
-        {/* Secondary: direct download link */}
+        {/* Download button for Android / desktop */}
         <a
           href={ad.path}
           download={ad.filename}
-          className="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors"
           data-ocid={`download_ads.download_button.${index + 1}`}
         >
           <Download size={18} />
-          Download
+          Download (Android / Laptop)
         </a>
-
-        <p className="text-center text-gray-500 text-xs mt-2">
-          On iPhone: tap "Open Image", then hold the image and choose "Save to
-          Photos"
-        </p>
       </div>
     </div>
   );
